@@ -1,0 +1,9 @@
+# This a list of useful shortcuts that make my life easier at work.
+
+REPOS_DIR="~/Documents/Dev"
+
+alias pu="pod update"
+alias rl="cd $REPOS_DIR/remotelink/RemoteLink"
+alias base="cd $REPOS_DIR/onstarbase/OnStarBase"
+alias services="cd $REPOS_DIR/onstarservices/OnStarServices"
+alias frankify="frank build --workspace RemoteLink.xcworkspace --scheme RemoteLink"

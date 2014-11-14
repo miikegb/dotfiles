@@ -7,3 +7,16 @@ alias rl="cd $REPOS_DIR/remotelink/RemoteLink"
 alias base="cd $REPOS_DIR/onstarbase/OnStarBase"
 alias services="cd $REPOS_DIR/onstarservices/OnStarServices"
 alias frankify="frank build --workspace RemoteLink.xcworkspace --scheme RemoteLink"
+alias rf="./Scripts/run_frank.sh"
+alias cut_new_version="./Scripts/podspec_update.sh"
+alias up="cd .."
+alias pull="git pull"
+alias shipit="git push"
+alias lg="git lg"
+alias changes="lg -p"
+alias c="clear"
+
+function start_servers {
+  ./Scripts/start_fake_server.sh
+  ./Scripts/start_legal_server.sh
+}

@@ -8,6 +8,7 @@ alias base="cd $REPOS_DIR/onstarbase/OnStarBase"
 alias services="cd $REPOS_DIR/onstarservices/OnStarServices"
 alias frankify="frank build --workspace RemoteLink.xcworkspace --scheme RemoteLink"
 alias rf="./Scripts/run_frank.sh"
+alias unit="./Scripts/unit_tests.sh"
 alias cut_new_version="./Scripts/podspec_update.sh"
 alias up="cd .."
 alias pull="git pull"
@@ -15,6 +16,9 @@ alias shipit="git push"
 alias lg="git lg"
 alias changes="lg -p"
 alias c="clear"
+alias reload=". $REPOS_DIR/dotfiles/.shortcuts"
+alias fix_charles="~/Documents/Stuff/install-charles-ca-cert-for-iphone-simulator.command"
+alias l="ls -la"
 
 function start_servers {
   ./Scripts/start_fake_server.sh

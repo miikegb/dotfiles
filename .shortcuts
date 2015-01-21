@@ -6,6 +6,9 @@ alias pu="pod update"
 alias rl="cd $REPOS_DIR/remotelink/RemoteLink"
 alias base="cd $REPOS_DIR/onstarbase/OnStarBase"
 alias services="cd $REPOS_DIR/onstarservices/OnStarServices"
+alias auth="cd $REPOS_DIR/onstarauthentication/OnStarAuthentication"
+alias maps="cd $REPOS_DIR/onstartelenavmaps"
+alias analytics="cd $REPOS_DIR/onstaranalytics/OnStarAnalytics"
 alias frankify="frank build --workspace RemoteLink.xcworkspace --scheme RemoteLink"
 alias rf="./Scripts/run_frank.sh"
 alias unit="./Scripts/unit_tests.sh"
@@ -20,7 +23,14 @@ alias reload=". $REPOS_DIR/dotfiles/.shortcuts"
 alias fix_charles="~/Documents/Stuff/install-charles-ca-cert-for-iphone-simulator.command"
 alias l="ls -la"
 
+export ONSTAR_SERVICES="$REPOS_DIR/onstarservices/OnStarServices"
+export ONSTAR_ANALYTICS="$REPOS_DIR/onstaranalytics/OnStarAnalytics"
+
 function start_servers {
   ./Scripts/start_fake_server.sh
   ./Scripts/start_legal_server.sh
+}
+
+function edit_shortcuts {
+  atom ~/Documents/Dev/dotfiles/.shortcuts
 }

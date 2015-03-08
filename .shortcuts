@@ -22,6 +22,7 @@ alias c="clear"
 alias reload=". $REPOS_DIR/dotfiles/.shortcuts"
 alias fix_charles="~/Documents/Stuff/install-charles-ca-cert-for-iphone-simulator.command"
 alias l="ls -la"
+alias hifrank="ios-sim launch Frank/frankified_build/Frankified.app --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-5, 8.1" --exit"
 
 export ONSTAR_SERVICES="$REPOS_DIR/onstarservices/OnStarServices"
 export ONSTAR_ANALYTICS="$REPOS_DIR/onstaranalytics/OnStarAnalytics"

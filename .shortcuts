@@ -1,6 +1,6 @@
 # This a list of useful shortcuts that make my life easier at work.
 
-REPOS_DIR="~/Documents/Dev"
+REPOS_DIR="~/Dev"
 
 alias pu="pod update"
 alias rl="cd $REPOS_DIR/remotelink/RemoteLink"
@@ -9,6 +9,7 @@ alias services="cd $REPOS_DIR/onstarservices/OnStarServices"
 alias auth="cd $REPOS_DIR/onstarauthentication/OnStarAuthentication"
 alias maps="cd $REPOS_DIR/onstartelenavmaps"
 alias analytics="cd $REPOS_DIR/onstaranalytics/OnStarAnalytics"
+alias om="cd $REPOS_DIR/gmownermanual/OSGMPluginOwnerManual"
 alias frankify="frank build --workspace RemoteLink.xcworkspace --scheme RemoteLink"
 alias rf="./Scripts/run_frank.sh"
 alias unit="./Scripts/unit_tests.sh"
@@ -23,6 +24,7 @@ alias reload=". $REPOS_DIR/dotfiles/.shortcuts"
 alias fix_charles="~/Documents/Stuff/install-charles-ca-cert-for-iphone-simulator.command"
 alias l="ls -la"
 alias hifrank="ios-sim launch Frank/frankified_build/Frankified.app --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-5, 8.1" --exit"
+alias dotfiles="cd ~/Dev/dotfiles/"
 
 export ONSTAR_SERVICES="$REPOS_DIR/onstarservices/OnStarServices"
 export ONSTAR_ANALYTICS="$REPOS_DIR/onstaranalytics/OnStarAnalytics"
@@ -33,5 +35,5 @@ function start_servers {
 }
 
 function edit_shortcuts {
-  atom ~/Documents/Dev/dotfiles/.shortcuts
+  atom ~/Dev/dotfiles/.shortcuts
 }

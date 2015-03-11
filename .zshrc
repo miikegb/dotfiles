@@ -51,7 +51,7 @@ ZSH_THEME="kphoen"
 plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
-source ~/Documents/Dev/dotfiles/.shortcuts
+source ~/Dev/dotfiles/.shortcuts
 
 # User configuration
 

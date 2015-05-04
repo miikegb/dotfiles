@@ -1,6 +1,7 @@
 # This a list of useful shortcuts that make my life easier at work.
 
 REPOS_DIR="~/Dev"
+OMNIBUS_DIR="$REPOS_DIR/Omnibus"
 
 alias pu="pod update"
 alias rl="cd $REPOS_DIR/remotelink/RemoteLink"
@@ -25,6 +26,10 @@ alias fix_charles="~/Documents/Stuff/install-charles-ca-cert-for-iphone-simulato
 alias l="ls -la"
 alias hifrank="ios-sim launch Frank/frankified_build/Frankified.app --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-5, 8.1" --exit"
 alias dotfiles="cd ~/Dev/dotfiles/"
+
+# Omnibus
+alias omnibus="cd $OMNIBUS_DIR/omnibus"
+alias omdiag="cd $OMNIBUS_DIR/vehiclediagnosticsplugin"
 
 export ONSTAR_SERVICES="$REPOS_DIR/onstarservices/OnStarServices"
 export ONSTAR_ANALYTICS="$REPOS_DIR/onstaranalytics/OnStarAnalytics"

@@ -1,9 +1,5 @@
 # This a list of useful shortcuts that make my life easier at work.
 alias pu="pod update"
-alias frankify="frank build --workspace RemoteLink.xcworkspace --scheme RemoteLink"
-alias rf="./Scripts/run_frank.sh"
-alias unit="./Scripts/unit_tests.sh"
-alias cut_new_version="./Scripts/podspec_update.sh"
 alias up="cd .."
 alias pull="git pull"
 alias shipit="git push"
@@ -14,14 +10,8 @@ alias c="clear"
 alias l="ls -la"
 alias launchfrank="ios-sim launch Frank/frankified_build/Frankified.app --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-5, 8.1" --exit"
 
-function launchfrank {
-
-}
-
-function start_servers {
-  ./Scripts/start_fake_server.sh
-  ./Scripts/start_legal_server.sh
-}
+alias xc="find . -depth 1 -name '*.xcworkspace' -exec open -a '/Applications/Xcode.app' {} \;"
+alias xcb="find . -depth 1 -name '*.xcworkspace' -exec open -a '/Applications/Xcode-beta.app' {} \;"
 
 function edit_shortcuts {
   atom ~/Dev/dotfiles/.shortcuts

@@ -24,3 +24,8 @@ git clone https://github.com/miikegb/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 stow nvim tmux ghostty yazi    # skip aerospace on Linux if not needed
 ```
+
+### Post-install
+
+- **tmux plugins**: Open tmux and press `prefix + I` to install plugins via TPM
+- **yazi flavors**: Run `ya pack -i` to install flavors

@@ -1,0 +1,14 @@
+theme = TokyoNight
+macos-titlebar-style = hidden
+background-opacity = 0.8
+background-blur = true
+font-family = "CaskaydiaCove Nerd Font"
+font-size = 16
+
+shell-integration-features = no-cursor
+cursor-style = block
+
+keybind = global:cmd+ctrl+grave_accent=toggle_quick_terminal
+
+custom-shader = shaders/cursor_blaze_tapered.glsl
+

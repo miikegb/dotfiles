@@ -40,6 +40,11 @@ return {
       require("xcodebuild").setup({
         show_build_progress_bar = true,
         code_coverage = { enabled = true },
+        logs = {
+          auto_open_on_failed_tests = true, -- show logs when a test fails
+          auto_open_on_success_tests = false, -- keep quiet when tests pass
+          auto_focus = false, -- don't steal the cursor while you keep editing
+        },
       })
     end,
   },

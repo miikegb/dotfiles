@@ -38,6 +38,15 @@ map("n", "<leader>xc", "<cmd>XcodebuildToggleCodeCoverage<cr>", { desc = "Toggle
 map("n", "<leader>xC", "<cmd>XcodebuildShowCodeCoverageReport<cr>", { desc = "Code Coverage Report" })
 map("n", "<leader>xd", "<cmd>XcodebuildSelectDevice<cr>", { desc = "Select Device" })
 map("n", "<leader>xX", "<cmd>XcodebuildSelectScheme<cr>", { desc = "Select Scheme" })
+-- Switch the main project/workspace (handy with Tuist-generated workspaces),
+-- then re-pick the scheme since schemes differ per project.
+map("n", "<leader>xw", function()
+  require("lazy").load({ plugins = { "xcodebuild.nvim" } })
+  local pickers = require("xcodebuild.ui.pickers")
+  pickers.select_project(function()
+    pickers.select_scheme()
+  end)
+end, { desc = "Select Project / Workspace" })
 map("n", "<leader>xp", "<cmd>XcodebuildSelectTestPlan<cr>", { desc = "Select Test Plan" })
 map("n", "<leader>xa", "<cmd>XcodebuildCodeActions<cr>", { desc = "Code Actions" })
 map("n", "<leader>xo", "<cmd>XcodebuildProjectManager<cr>", { desc = "Project Manager" })

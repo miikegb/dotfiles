@@ -74,14 +74,19 @@ return {
     table.insert(opts.sections.lualine_x, 1, target)
     table.insert(opts.sections.lualine_x, 1, status)
 
-    -- Refresh lualine immediately on xcodebuild status changes (instead of waiting
-    -- for the ~1s statusline timer).
+    -- Refresh lualine on xcodebuild status changes (instead of waiting for the ~1s
+    -- statusline timer). Deferred with vim.schedule because xcodebuild fires these
+    -- events BEFORE updating vim.g.xcodebuild_last_status; refreshing synchronously
+    -- would read the previous value (e.g. leaving "Running Tests..." stuck after a
+    -- run finishes). Scheduling runs the refresh after the variable settles.
     vim.api.nvim_create_autocmd("User", {
       group = vim.api.nvim_create_augroup("xcodebuild_lualine", { clear = true }),
       pattern = "Xcodebuild*",
       callback = function()
-        pcall(function()
-          require("lualine").refresh()
+        vim.schedule(function()
+          pcall(function()
+            require("lualine").refresh()
+          end)
         end)
       end,
     })

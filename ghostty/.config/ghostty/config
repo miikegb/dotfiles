@@ -1,8 +1,8 @@
 theme = TokyoNight
 macos-titlebar-style = hidden
-background-opacity = 0.8
+background-opacity = 0.9
 background-blur = true
-font-family = "CaskaydiaCove Nerd Font"
+font-family = "Hurmit Nerd Font"
 font-size = 16
 
 shell-integration-features = no-cursor

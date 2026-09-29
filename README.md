@@ -23,7 +23,7 @@ brew install stow    # macOS
 # Clone and stow
 git clone https://github.com/miikegb/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-stow nvim tmux ghostty yazi zellij    # skip aerospace on Linux if not needed
+stow nvim tmux ghostty yazi zellij herdr    # skip aerospace on Linux if not needed
 ```
 
 ### Post-install

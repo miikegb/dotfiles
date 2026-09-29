@@ -1,10 +1,6 @@
+-- Options live in colorscheme.lua; no `config` here so lazy.nvim passes them to setup().
+-- variant = "auto" follows 'background', which Neovim updates when the terminal switches light/dark.
 return {
   "rose-pine/neovim",
   name = "rose-pine",
-  config = function()
-    require("rose-pine").setup({
-      styles = { transparency = true },
-    })
-    -- vim.cmd("colorscheme rose-pine")
-  end,
 }

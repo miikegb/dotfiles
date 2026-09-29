@@ -1,4 +1,4 @@
-theme = TokyoNight
+theme = Rose Pine
 macos-titlebar-style = hidden
 background-opacity = 0.9
 background-blur = true
@@ -8,7 +8,9 @@ font-size = 16
 shell-integration-features = no-cursor
 cursor-style = block
 
-keybind = global:cmd+ctrl+grave_accent=toggle_quick_terminal
+keybind = global:ctrl+alt+shift+8=toggle_quick_terminal
+quick-terminal-position = center
+quick-terminal-size = 50%,750px
 
 custom-shader = shaders/cursor_blaze_tapered.glsl
 

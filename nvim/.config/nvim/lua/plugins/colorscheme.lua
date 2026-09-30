@@ -27,7 +27,9 @@ return {
     opts = {
       variant = "auto", -- auto, main, moon, or dawn
       dark_variant = "main", -- main, moon, or dawn
-      dim_inactive_windows = true,
+      -- Dimming an inactive window requires giving it a solid background, which
+      -- overrides transparency (NormalNC gets a real bg). Off for consistent glass.
+      dim_inactive_windows = false,
       extend_background_behind_borders = true,
       enable = {
         terminal = true,
@@ -89,6 +91,10 @@ return {
         NvimTreeEndOfBuffer = { bg = "none" },
         SnacksExplorerNormal = { bg = "none" },
         SnacksPickerListNormal = { bg = "none" },
+        -- Winbar/breadcrumb strip is solid by default; keep it transparent too.
+        -- inherit = false stops rose-pine from merging back an inherited bg.
+        WinBar = { bg = "none", inherit = false },
+        WinBarNC = { bg = "none", inherit = false },
       },
 
       before_highlight = function(group, highlight, palette)

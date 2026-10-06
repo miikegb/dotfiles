@@ -46,6 +46,25 @@ return {
           auto_focus = false, -- don't steal the cursor while you keep editing
         },
       })
+
+      -- Workaround for an xcodebuild.nvim crash: a Swift Testing test whose result
+      -- is neither "Passed" nor "Skipped" and has no failure message the plugin can
+      -- parse (e.g. an expected failure) gets `message = nil`, and quickfix.set()
+      -- indexes it. The error
+      -- aborts the test runner before it fires XcodebuildTestsFinished, leaving
+      -- vim.g.xcodebuild_last_status stuck on "Running Tests...".
+      local quickfix = require("xcodebuild.core.quickfix")
+      local set = quickfix.set
+      quickfix.set = function(report)
+        for _, tests in pairs(report and report.tests or {}) do
+          for _, test in ipairs(tests) do
+            if not test.success and not test.message then
+              test.message = { "Did not pass (no failure message)" }
+            end
+          end
+        end
+        return set(report)
+      end
     end,
   },
 

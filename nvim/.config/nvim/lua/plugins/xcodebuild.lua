@@ -47,12 +47,36 @@ return {
         },
       })
 
-      -- Workaround for an xcodebuild.nvim crash: a Swift Testing test whose result
-      -- is neither "Passed" nor "Skipped" and has no failure message the plugin can
-      -- parse (e.g. an expected failure) gets `message = nil`, and quickfix.set()
-      -- indexes it. The error
-      -- aborts the test runner before it fires XcodebuildTestsFinished, leaving
-      -- vim.g.xcodebuild_last_status stuck on "Running Tests...".
+      -- Workaround: xcodebuild.nvim counts every xcresult test that isn't "Passed" or
+      -- "Skipped" as failed, so XCTExpectFailure / withKnownIssue tests ("Expected
+      -- Failure") show up as failures in a run Xcode calls successful. Rewrite that
+      -- result to "Passed" in the xcresulttool output the parser reads.
+      local util = require("xcodebuild.util")
+      local xcresult = require("xcodebuild.tests.xcresult_parser")
+      local fill_xcresult_data = xcresult.fill_xcresult_data
+      xcresult.fill_xcresult_data = function(report)
+        local shell = util.shell
+        util.shell = function(cmd)
+          local output = shell(cmd)
+          if type(cmd) == "table" and cmd[2] == "xcresulttool" then
+            for i, line in ipairs(output) do
+              output[i] = line:gsub('("result"%s*:%s*)"Expected Failure"', '%1"Passed"')
+            end
+          end
+          return output
+        end
+        local ok, result = pcall(fill_xcresult_data, report)
+        util.shell = shell
+        if not ok then
+          error(result, 0)
+        end
+        return result
+      end
+
+      -- Safety net for the same code path: a test still marked failed with no failure
+      -- message the plugin can parse has `message = nil`, and quickfix.set() indexes
+      -- it. The error aborts the test runner before it fires XcodebuildTestsFinished,
+      -- leaving vim.g.xcodebuild_last_status stuck on "Running Tests...".
       local quickfix = require("xcodebuild.core.quickfix")
       local set = quickfix.set
       quickfix.set = function(report)

@@ -171,6 +171,8 @@ return {
 
       -- Open the UI when a session starts; close it when it ends.
       dap.listeners.after.event_initialized.dapui = function() dapui.open() end
+      -- The dap-ui console shows the same output, so drop the app logs split.
+      dap.listeners.after.event_initialized.app_logs = function() require("xcode_app_logs").close() end
       dap.listeners.before.event_terminated.dapui = function() dapui.close() end
       dap.listeners.before.event_exited.dapui = function() dapui.close() end
     end,

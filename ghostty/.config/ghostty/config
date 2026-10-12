@@ -12,5 +12,5 @@ keybind = global:ctrl+alt+shift+8=toggle_quick_terminal
 quick-terminal-position = center
 quick-terminal-size = 50%,750px
 
-custom-shader = shaders/cursor_blaze_tapered.glsl
+custom-shader = ~/.ghostty/shaders/cursor_blaze_tapered.glsl
 

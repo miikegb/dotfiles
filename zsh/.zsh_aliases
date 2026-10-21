@@ -40,6 +40,22 @@ if command -v yazi >/dev/null; then
   }
 fi
 
+# mise: `mt` fuzzy-picks a task and runs it, with the task's details in a preview pane.
+# Extra arguments are passed through to the task. ctrl-e opens the task definition instead.
+if command -v mise >/dev/null && command -v fzf >/dev/null; then
+  mt() {
+    local task
+    task=$(mise tasks ls --no-header 2>/dev/null \
+      | fzf --layout=reverse --height=60% --border=rounded \
+            --prompt='  mise ❯ ' --header='enter: run  ·  ctrl-e: edit' \
+            --with-nth=1,2 \
+            --preview='mise tasks info {1}' --preview-window=right,55%,wrap \
+            --bind='ctrl-e:execute(mise tasks edit {1})+abort' \
+      | awk '{print $1}')
+    [[ -n $task ]] && mise run "$task" "$@"
+  }
+fi
+
 # --- Git ---
 alias g='git'
 alias gst='git status'

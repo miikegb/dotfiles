@@ -222,6 +222,10 @@ format = "[ $symbol$environment ]($style)"
 symbol = ""
 format = "[ $symbol( $context) ]($style)"
 
+# right_format = "$all" enables every cloud module; hide the active GCP account
+[gcloud]
+disabled = true
+
 [palettes.rose_pine]
 # Rose Pine (main) — matches the Ghostty and Zellij themes
 # --- background ---

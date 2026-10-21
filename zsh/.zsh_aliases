@@ -1,0 +1,67 @@
+# Common aliases, shared across machines via the dotfiles repo.
+# Machine-specific ones go in ~/.zsh_aliases.local (not tracked), sourced after this file.
+
+# --- Navigation ---
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias c='clear'
+alias dots='cd ~/dotfiles'
+
+# --- Listing (eza when available) ---
+if command -v eza >/dev/null; then
+  alias ls='eza --icons --group-directories-first'
+  alias ll='eza -l --icons --group-directories-first --git'
+  alias la='eza -la --icons --group-directories-first --git'
+  alias lt='eza --tree --level=2 --icons --group-directories-first'
+else
+  alias ll='ls -lh'
+  alias la='ls -lah'
+fi
+
+# --- Editors and tools ---
+if command -v nvim >/dev/null; then
+  alias v='nvim'
+  alias vim='nvim'
+fi
+command -v bat >/dev/null && alias cat='bat --paging=never'
+command -v lazygit >/dev/null && alias lg='lazygit'
+
+# yazi: `y` opens the file manager and cd's into the directory you quit from
+if command -v yazi >/dev/null; then
+  y() {
+    local tmp cwd
+    tmp="$(mktemp -t yazi-cwd.XXXXXX)"
+    yazi "$@" --cwd-file="$tmp"
+    if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+      builtin cd -- "$cwd"
+    fi
+    command rm -f -- "$tmp"
+  }
+fi
+
+# --- Git ---
+alias g='git'
+alias gst='git status'
+alias ga='git add'
+alias gaa='git add --all'
+alias gc='git commit'
+alias gcm='git commit -m'
+alias gco='git checkout'
+alias gsw='git switch'
+alias gb='git branch'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias gl='git log --oneline --graph --decorate -20'
+alias gf='git fetch'
+alias gp='git push'
+alias gpl='git pull'
+
+# --- Shell config ---
+alias zrc='${EDITOR:-nvim} ~/.zshrc'
+alias zal='${EDITOR:-nvim} ~/.zsh_aliases'
+alias src='source ~/.zshrc'
+
+# --- Misc ---
+alias path='echo "$PATH" | tr ":" "\n"'
+command -v brew >/dev/null && alias brewup='brew update && brew upgrade && brew cleanup'

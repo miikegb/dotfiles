@@ -12,6 +12,8 @@ Config files managed with [GNU Stow](https://www.gnu.org/software/stow/).
 | aerospace  | `~/.config/aerospace` |
 | yazi       | `~/.config/yazi`    |
 | zellij     | `~/.config/zellij`  |
+| starship   | `~/.config/starship.toml` |
+| zsh        | `~/.zshrc`, `~/.zprofile`, `~/.zsh_aliases` (+ untracked `~/.zsh_aliases.local`) |
 
 ## Setup on a new machine
 
@@ -23,7 +25,7 @@ brew install stow    # macOS
 # Clone and stow
 git clone https://github.com/miikegb/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-stow nvim tmux ghostty yazi zellij herdr    # skip aerospace on Linux if not needed
+stow nvim tmux ghostty yazi zellij herdr starship zsh    # skip aerospace on Linux if not needed
 ```
 
 ### Post-install

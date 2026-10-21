@@ -10,3 +10,8 @@ yazi/.config/yazi/flavors/
 
 # General
 .DS_Store
+
+# Zsh machine state
+zsh/.zsh_history
+zsh/.zcompdump*
+zsh/.zsh_aliases.local

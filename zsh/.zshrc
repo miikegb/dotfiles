@@ -15,6 +15,9 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' # case-insensitive
 
 source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
+# --- zoxide (z / zi) ---
+command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
+
 # --- Aliases ---
 [[ -f ~/.zsh_aliases ]] && source ~/.zsh_aliases
 # Machine-specific aliases live outside the dotfiles repo and are picked up if present

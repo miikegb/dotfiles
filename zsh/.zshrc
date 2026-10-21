@@ -39,6 +39,11 @@ _prompt_blank_line() {
 (( ${preexec_functions[(I)_prompt_blank_line_preexec]} )) || preexec_functions+=(_prompt_blank_line_preexec)
 (( ${precmd_functions[(I)_prompt_blank_line]} )) || precmd_functions+=(_prompt_blank_line)
 
+# --- Machine-specific config ---
+# Not tracked in the dotfiles repo. Sourced late so it can override anything
+# above and register completions (compinit has already run).
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
 # --- Syntax highlighting (keep at the very end) ---
 source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 

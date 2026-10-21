@@ -13,7 +13,7 @@ Config files managed with [GNU Stow](https://www.gnu.org/software/stow/).
 | yazi       | `~/.config/yazi`    |
 | zellij     | `~/.config/zellij`  |
 | starship   | `~/.config/starship.toml` |
-| zsh        | `~/.zshrc`, `~/.zprofile`, `~/.zsh_aliases` (+ untracked `~/.zsh_aliases.local`) |
+| zsh        | `~/.zshrc`, `~/.zprofile`, `~/.zsh_aliases` (+ untracked `~/.zsh_aliases.local` and `~/.zshrc.local` for machine-specific config); inits `zoxide` (`z`/`zi`) when installed |
 
 ## Setup on a new machine
 
@@ -33,3 +33,4 @@ stow nvim tmux ghostty yazi zellij herdr starship zsh    # skip aerospace on Lin
 - **tmux plugins**: Open tmux and press `prefix + I` to install plugins via TPM
 - **yazi flavors**: Run `ya pkg install` to install the flavors listed in `package.toml`
 - **zellij**: The first Ctrl+h/j/k/l press asks to allow the `vim-zellij-navigator` plugin — accept it
+- **zsh**: `~/.zshrc` expects these from Homebrew: `brew install fzf starship zoxide zsh-autosuggestions zsh-syntax-highlighting`

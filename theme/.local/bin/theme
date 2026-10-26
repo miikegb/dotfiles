@@ -29,6 +29,7 @@ HOME = Path.home()
 THEMES_DIR = HOME / ".config" / "theme" / "themes"
 
 GHOSTTY = HOME / ".config" / "ghostty" / "config"
+WEZTERM = HOME / ".config" / "wezterm" / "wezterm.lua"
 NVIM = HOME / ".config" / "nvim" / "lua" / "plugins" / "colorscheme.lua"
 HERDR = HOME / ".config" / "herdr" / "config.toml"
 ZELLIJ = HOME / ".config" / "zellij" / "config.kdl"
@@ -127,6 +128,15 @@ def apply_ghostty(s) -> list[Change]:
     return edit(GHOSTTY, "ghostty", r"^theme = .*$", f"theme = {s['theme']}")
 
 
+def apply_wezterm(s) -> list[Change]:
+    changes = []
+    for key in ("dark", "light"):
+        if key in s:
+            changes += edit(WEZTERM, f"wezterm {key}", rf'^local {key}_scheme = "[^"]*"',
+                            f'local {key}_scheme = "{s[key]}"')
+    return changes
+
+
 def apply_nvim(s) -> list[Change]:
     return edit(NVIM, "nvim", r'colorscheme = "[^"]*"', f'colorscheme = "{s["colorscheme"]}"')
 
@@ -202,6 +212,7 @@ def apply_vscode(s) -> list[Change]:
 
 APPLIERS = {
     "ghostty": apply_ghostty,
+    "wezterm": apply_wezterm,
     "nvim": apply_nvim,
     "herdr": apply_herdr,
     "zellij": apply_zellij,
@@ -245,6 +256,8 @@ def reload(touched: set[str], cp: configparser.ConfigParser) -> list[str]:
             hints.append(f"nvim: switched {n} running instance{'s' if n > 1 else ''}")
     if "ghostty" in touched:
         hints.append("ghostty: press ⌘⇧, in Ghostty to reload")
+    if "wezterm" in touched:
+        hints.append("wezterm: reloads its config automatically")
     if "fzf" in touched:
         hints.append("fzf: takes effect in new shells (or `src`)")
     if "yazi" in touched:

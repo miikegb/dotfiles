@@ -9,6 +9,7 @@ Config files managed with [GNU Stow](https://www.gnu.org/software/stow/).
 | nvim       | `~/.config/nvim`    |
 | tmux       | `~/.config/tmux`    |
 | ghostty    | `~/.config/ghostty` |
+| wezterm    | `~/.config/wezterm` (mirrors the ghostty config) |
 | aerospace  | `~/.config/aerospace` |
 | yazi       | `~/.config/yazi`    |
 | zellij     | `~/.config/zellij`  |
@@ -26,7 +27,7 @@ brew install stow    # macOS
 # Clone and stow
 git clone https://github.com/miikegb/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-stow nvim tmux ghostty yazi zellij herdr starship zsh theme    # skip aerospace on Linux if not needed
+stow nvim tmux ghostty wezterm yazi zellij herdr starship zsh theme    # skip aerospace on Linux if not needed
 ```
 
 ### Post-install
@@ -38,8 +39,8 @@ stow nvim tmux ghostty yazi zellij herdr starship zsh theme    # skip aerospace 
 
 ## Switching themes
 
-`theme` changes the color theme of every tool at once: ghostty, nvim, herdr,
-zellij, yazi, starship, tmux, fzf and VS Code (when its settings file exists).
+`theme` changes the color theme of every tool at once: ghostty, wezterm, nvim,
+herdr, zellij, yazi, starship, tmux, fzf and VS Code (when its settings file exists).
 
 ```bash
 theme                 # fzf picker with a preview of each theme

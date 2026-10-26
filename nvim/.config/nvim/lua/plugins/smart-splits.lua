@@ -1,6 +1,8 @@
 -- Ctrl+h/j/k/l moves between neovim splits and zellij/tmux panes
 return {
   "mrjones2014/smart-splits.nvim",
+  -- v3 dropped the herdr backend; v2 still hands off to herdr panes at split edges
+  tag = "v2.1.1-final",
   lazy = false,
   opts = {},
   keys = {

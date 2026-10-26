@@ -262,7 +262,7 @@ sapphire = "#31748f"
 blue = "#9ccfd8"
 lavender = "#c4a7e7"  # iris — git branch fg
 
-[palettes.custom1]
+[palettes.catppuccin_mocha]
 # --- background ---
 crust = "#11111b"
 mantle = "#181825"

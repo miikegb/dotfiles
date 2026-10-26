@@ -1,0 +1,379 @@
+#!/usr/bin/env python3
+"""theme: switch the color theme of every tool in the dotfiles at once.
+
+Usage:
+  theme                 pick a theme with fzf and apply it
+  theme <name>          apply a theme by name
+  theme list            list available themes (current one marked)
+  theme current         print the current theme
+  theme -n <name>       dry run: show what would change
+  theme --preview NAME  (internal) render the fzf preview pane
+
+Themes are INI files in ~/.config/theme/themes/. Each section names a tool;
+a tool without a section is left untouched for that theme. Config files are
+edited in place through their stow symlinks, so `git diff` in the dotfiles
+repo shows exactly what changed.
+"""
+from __future__ import annotations
+
+import configparser
+import glob
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+HOME = Path.home()
+THEMES_DIR = HOME / ".config" / "theme" / "themes"
+
+GHOSTTY = HOME / ".config" / "ghostty" / "config"
+NVIM = HOME / ".config" / "nvim" / "lua" / "plugins" / "colorscheme.lua"
+HERDR = HOME / ".config" / "herdr" / "config.toml"
+ZELLIJ = HOME / ".config" / "zellij" / "config.kdl"
+YAZI = HOME / ".config" / "yazi" / "theme.toml"
+YAZI_FLAVORS = HOME / ".config" / "yazi" / "flavors"
+STARSHIP = HOME / ".config" / "starship.toml"
+TMUX = HOME / ".config" / "tmux" / "tmux.conf"
+ZSHRC = HOME / ".zshrc"
+VSCODE_SETTINGS = [
+    HOME / "Library" / "Application Support" / "Code" / "User" / "settings.json",
+    HOME / ".config" / "Code" / "User" / "settings.json",
+]
+
+BOLD, DIM, RESET = "\033[1m", "\033[2m", "\033[0m"
+
+
+# --- theme files -----------------------------------------------------------
+
+def load_themes() -> dict[str, configparser.ConfigParser]:
+    themes = {}
+    for path in sorted(THEMES_DIR.glob("*.ini")):
+        cp = configparser.ConfigParser(interpolation=None)
+        cp.optionxform = str  # keep key case
+        cp.read(path)
+        themes[path.stem] = cp
+    return themes
+
+
+def display_name(cp: configparser.ConfigParser, key: str) -> str:
+    return cp.get("theme", "name", fallback=key)
+
+
+def current_theme(themes: dict[str, configparser.ConfigParser]) -> str | None:
+    """The theme whose nvim colorscheme matches what colorscheme.lua sets."""
+    try:
+        text = NVIM.read_text()
+    except OSError:
+        return None
+    m = re.search(r'colorscheme = "([^"]*)"', text)
+    if not m:
+        return None
+    for key, cp in themes.items():
+        if cp.get("nvim", "colorscheme", fallback=None) == m.group(1):
+            return key
+    return None
+
+
+# --- file editing ----------------------------------------------------------
+
+class Change:
+    def __init__(self, path: Path, label: str, before: str, after: str):
+        self.path, self.label, self.before, self.after = path, label, before, after
+
+
+def edit(path: Path, label: str, pattern: str, replacement: str,
+         flags: int = re.M, section: str | None = None,
+         display: str | None = None) -> list[Change]:
+    """Replace the first match of pattern in path (or within a [section] of it).
+
+    Writes through the symlink so stow links stay intact. Returns the list of
+    changes made (empty when the file is missing, unchanged, or had no match).
+    """
+    if not path.exists():
+        note(f"{label}: {path} not found, skipping")
+        return []
+    real = path.resolve()
+    text = real.read_text()
+
+    region_start, region_end = 0, len(text)
+    if section:
+        m = re.search(rf"^\[{re.escape(section)}\]\s*$", text, re.M)
+        if not m:
+            note(f"{label}: no [{section}] section in {path.name}, skipping")
+            return []
+        region_start = m.end()
+        nxt = re.search(r"^\[", text[region_start:], re.M)
+        region_end = region_start + nxt.start() if nxt else len(text)
+
+    region = text[region_start:region_end]
+    m = re.search(pattern, region, flags)
+    if not m:
+        note(f"{label}: pattern not found in {path.name}, skipping")
+        return []
+    new_region = region[:m.start()] + m.expand(replacement) + region[m.end():]
+    if new_region == region:
+        return []
+    new_text = text[:region_start] + new_region + text[region_end:]
+    if not DRY_RUN:
+        real.write_text(new_text)
+    return [Change(path, label, m.group(0), display or m.expand(replacement))]
+
+
+# --- per-tool appliers -----------------------------------------------------
+
+def apply_ghostty(s) -> list[Change]:
+    return edit(GHOSTTY, "ghostty", r"^theme = .*$", f"theme = {s['theme']}")
+
+
+def apply_nvim(s) -> list[Change]:
+    return edit(NVIM, "nvim", r'colorscheme = "[^"]*"', f'colorscheme = "{s["colorscheme"]}"')
+
+
+def apply_herdr(s) -> list[Change]:
+    changes = []
+    for key in ("name", "dark_name", "light_name"):
+        if key in s:
+            changes += edit(HERDR, f"herdr {key}", rf'^{key} = "[^"]*"',
+                            f'{key} = "{s[key]}"', section="theme")
+    return changes
+
+
+def apply_zellij(s) -> list[Change]:
+    return edit(ZELLIJ, "zellij", r'^theme "[^"]*"', f'theme "{s["theme"]}"')
+
+
+def apply_yazi(s) -> list[Change]:
+    changes = []
+    for key in ("dark", "light"):
+        if key not in s:
+            continue
+        flavor = s[key]
+        if not (YAZI_FLAVORS / f"{flavor}.yazi").exists():
+            pkg = s.get("package")
+            if not pkg or not shutil.which("ya"):
+                note(f"yazi: flavor {flavor} is not installed and no package given, skipping")
+                return changes
+            # Already listed in package.toml (e.g. on a fresh machine): just install.
+            listed = f'use = "{pkg}"' in (YAZI.parent / "package.toml").read_text()
+            cmd = ["ya", "pkg", "install"] if listed else ["ya", "pkg", "add", pkg]
+            note(f"yazi: installing flavor {flavor} via `{' '.join(cmd)}`")
+            if not DRY_RUN:
+                r = subprocess.run(cmd, capture_output=True, text=True)
+                if r.returncode != 0:
+                    note(f"yazi: install failed ({r.stderr.strip().splitlines()[-1] if r.stderr.strip() else 'unknown error'}), skipping")
+                    return changes
+        changes += edit(YAZI, f"yazi {key}", rf'^{key} = "[^"]*"', f'{key} = "{flavor}"',
+                        section="flavor")
+    return changes
+
+
+def apply_starship(s) -> list[Change]:
+    return edit(STARSHIP, "starship", r'^palette = "[^"]*"', f'palette = "{s["palette"]}"')
+
+
+def apply_tmux(s) -> list[Change]:
+    changes = edit(TMUX, "tmux theme", r'^set -g @powerkit_theme "[^"]*"',
+                   f'set -g @powerkit_theme "{s["theme"]}"')
+    if "variant" in s:
+        changes += edit(TMUX, "tmux variant", r'^set -g @powerkit_theme_variant "[^"]*"',
+                        f'set -g @powerkit_theme_variant "{s["variant"]}"')
+    return changes
+
+
+def apply_fzf(s) -> list[Change]:
+    opts = "\n  ".join(s["colors"].split())
+    return edit(ZSHRC, "fzf", r'export FZF_DEFAULT_OPTS="[^"]*"',
+                f'export FZF_DEFAULT_OPTS="\n  {opts}"', flags=re.M | re.S,
+                display="FZF_DEFAULT_OPTS colors in ~/.zshrc")
+
+
+def apply_vscode(s) -> list[Change]:
+    path = next((p for p in VSCODE_SETTINGS if p.exists()), None)
+    if path is None:
+        note("vscode: settings.json not found, skipping")
+        return []
+    value = f'"workbench.colorTheme": "{s["theme"]}"'
+    if re.search(r'"workbench\.colorTheme"\s*:', path.read_text()):
+        return edit(path, "vscode", r'"workbench\.colorTheme"\s*:\s*"[^"]*"', value)
+    return edit(path, "vscode", r"\{", f"{{\n  {value},")
+
+
+APPLIERS = {
+    "ghostty": apply_ghostty,
+    "nvim": apply_nvim,
+    "herdr": apply_herdr,
+    "zellij": apply_zellij,
+    "yazi": apply_yazi,
+    "starship": apply_starship,
+    "tmux": apply_tmux,
+    "fzf": apply_fzf,
+    "vscode": apply_vscode,
+}
+
+
+# --- reloading running tools -----------------------------------------------
+
+def nvim_sockets() -> list[str]:
+    patterns = []
+    tmp = os.environ.get("TMPDIR", "/tmp")
+    patterns.append(os.path.join(tmp, f"nvim.{os.environ.get('USER', '*')}", "*", "nvim.*.0"))
+    runtime = os.environ.get("XDG_RUNTIME_DIR")
+    if runtime:
+        patterns.append(os.path.join(runtime, "nvim.*.0"))
+    return [s for p in patterns for s in glob.glob(p)]
+
+
+def reload(touched: set[str], cp: configparser.ConfigParser) -> list[str]:
+    hints = []
+    if "herdr" in touched and shutil.which("herdr"):
+        subprocess.run(["herdr", "server", "reload-config"], capture_output=True)
+        hints.append("herdr: reloaded")
+    if "tmux" in touched and shutil.which("tmux"):
+        if subprocess.run(["tmux", "list-sessions"], capture_output=True).returncode == 0:
+            subprocess.run(["tmux", "source-file", str(TMUX)], capture_output=True)
+            hints.append("tmux: reloaded")
+    if "nvim" in touched and shutil.which("nvim"):
+        scheme = cp["nvim"]["colorscheme"]
+        n = 0
+        for sock in nvim_sockets():
+            r = subprocess.run(["nvim", "--server", sock, "--remote-expr",
+                                f'execute("colorscheme {scheme}")'], capture_output=True)
+            n += r.returncode == 0
+        if n:
+            hints.append(f"nvim: switched {n} running instance{'s' if n > 1 else ''}")
+    if "ghostty" in touched:
+        hints.append("ghostty: press ⌘⇧, in Ghostty to reload")
+    if "fzf" in touched:
+        hints.append("fzf: takes effect in new shells (or `src`)")
+    if "yazi" in touched:
+        hints.append("yazi: takes effect on next launch")
+    return hints
+
+
+# --- commands --------------------------------------------------------------
+
+DRY_RUN = False
+NOTES: list[str] = []
+
+
+def note(msg: str) -> None:
+    if msg not in NOTES:
+        NOTES.append(msg)
+
+
+def apply(key: str, themes: dict[str, configparser.ConfigParser]) -> int:
+    global DRY_RUN
+    if key not in themes:
+        print(f"theme: unknown theme '{key}'. Available: {', '.join(themes)}", file=sys.stderr)
+        return 1
+    cp = themes[key]
+    changes: list[Change] = []
+    touched: set[str] = set()
+    for tool, fn in APPLIERS.items():
+        if not cp.has_section(tool):
+            continue
+        made = fn(cp[tool])
+        if made:
+            touched.add(tool)
+        changes += made
+
+    verb = "would set" if DRY_RUN else "set"
+    print(f"{BOLD}{display_name(cp, key)}{RESET}")
+    for c in changes:
+        print(f"  {c.label:<17} {verb} {DIM}{c.after.strip().splitlines()[0]}{RESET}")
+    if not changes:
+        print("  already active, nothing changed")
+    for n in NOTES:
+        print(f"  {DIM}· {n}{RESET}")
+    if not DRY_RUN:
+        for h in reload(touched, cp):
+            print(f"  {DIM}↻ {h}{RESET}")
+    return 0
+
+
+def list_themes(themes, current) -> None:
+    for key, cp in themes.items():
+        mark = "●" if key == current else " "
+        print(f"{mark} {key:<18} {DIM}{display_name(cp, key)}{RESET}")
+
+
+def swatch(colors: str) -> str:
+    out = []
+    for hexcol in colors.split():
+        h = hexcol.lstrip("#")
+        r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+        out.append(f"\033[48;2;{r};{g};{b}m    \033[0m")
+    return "".join(out)
+
+
+def preview(key: str, themes) -> None:
+    cp = themes.get(key)
+    if cp is None:
+        return
+    print(f"{BOLD}{display_name(cp, key)}{RESET}")
+    if cp.has_option("theme", "palette"):
+        print()
+        print(swatch(cp["theme"]["palette"]))
+    print()
+    for tool in APPLIERS:
+        if cp.has_section(tool):
+            vals = "colors" if tool == "fzf" else ", ".join(v for k, v in cp[tool].items() if k != "package")
+            print(f"  {tool:<9} {vals}")
+        else:
+            print(f"  {DIM}{tool:<9} —{RESET}")
+
+
+def pick(themes, current) -> str | None:
+    if not shutil.which("fzf"):
+        print("theme: fzf is required for the picker; pass a theme name instead", file=sys.stderr)
+        return None
+    rows = []
+    for key, cp in themes.items():
+        mark = "●" if key == current else " "
+        rows.append(f"{key}\t{mark} {display_name(cp, key)}")
+    me = os.path.realpath(__file__)
+    r = subprocess.run(
+        ["fzf", "--delimiter=\t", "--with-nth=2", "--layout=reverse", "--height=50%",
+         "--border=rounded", "--prompt=  theme ❯ ", "--header=enter: apply",
+         f"--preview={sys.executable} {me} --preview {{1}}",
+         "--preview-window=right,50%,wrap", "--ansi"],
+        input="\n".join(rows), capture_output=True, text=True)
+    if r.returncode != 0 or not r.stdout.strip():
+        return None
+    return r.stdout.split("\t", 1)[0].strip()
+
+
+def main(argv: list[str]) -> int:
+    global DRY_RUN
+    themes = load_themes()
+    if not themes:
+        print(f"theme: no themes found in {THEMES_DIR}", file=sys.stderr)
+        return 1
+    current = current_theme(themes)
+
+    args = [a for a in argv if a not in ("-n", "--dry-run")]
+    DRY_RUN = len(args) != len(argv)
+
+    if not args:
+        key = pick(themes, current)
+        return apply(key, themes) if key else 0
+    cmd = args[0]
+    if cmd in ("-h", "--help", "help"):
+        print(__doc__.strip())
+        return 0
+    if cmd == "list":
+        list_themes(themes, current)
+        return 0
+    if cmd == "current":
+        print(current or "unknown")
+        return 0
+    if cmd == "--preview" and len(args) > 1:
+        preview(args[1], themes)
+        return 0
+    return apply(cmd, themes)
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

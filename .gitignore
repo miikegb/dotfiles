@@ -15,3 +15,16 @@ yazi/.config/yazi/flavors/
 zsh/.zsh_history
 zsh/.zcompdump*
 zsh/.zsh_aliases.local
+
+# theme tool
+__pycache__/
+
+# Herdr runtime state (logs, sockets, sessions, plugin checkouts)
+herdr/.config/herdr/*.log
+herdr/.config/herdr/*.sock*
+herdr/.config/herdr/session.json
+herdr/.config/herdr/sessions/
+herdr/.config/herdr/session-snapshots/
+herdr/.config/herdr/plugins/
+herdr/.config/herdr/plugins.json
+herdr/.config/herdr/.plugins.lock

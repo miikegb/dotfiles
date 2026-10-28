@@ -3,7 +3,7 @@
 # command_timeout = 300
 follow_symlinks = false
 add_newline = false  # the blank line between prompts is printed by .zshrc, so the first prompt has none
-palette = "rose_pine"
+palette = "catppuccin_mocha"
 
 format = """
 ${directory}\

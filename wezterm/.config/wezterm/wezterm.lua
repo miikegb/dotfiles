@@ -4,8 +4,8 @@ local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
 -- --- Theme: follow the macOS appearance, like ghostty's `light:…,dark:…` pair ---
-local dark_scheme = "rose-pine"
-local light_scheme = "rose-pine-dawn"
+local dark_scheme = "Catppuccin Mocha"
+local light_scheme = "Catppuccin Latte"
 
 local function scheme_for_appearance()
   local appearance = wezterm.gui and wezterm.gui.get_appearance() or "Dark"

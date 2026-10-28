@@ -1,4 +1,4 @@
-theme = light:Rose Pine Dawn,dark:Rose Pine
+theme = light:Catppuccin Latte,dark:Catppuccin Mocha
 macos-titlebar-style = hidden
 background-opacity = 0.9
 background-blur = true

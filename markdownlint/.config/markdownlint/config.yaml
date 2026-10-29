@@ -1,0 +1,4 @@
+# Global markdownlint rules. Loaded by nvim-lint via --config (see
+# nvim/.config/nvim/lua/plugins/markdownlint.lua). A project-level
+# .markdownlint.yaml still overrides these.
+MD013: false # line-length

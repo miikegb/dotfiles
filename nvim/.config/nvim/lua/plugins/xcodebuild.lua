@@ -137,7 +137,7 @@ return {
   -- they render in the which-key <leader>x menu like the rest.
   {
     "mfussenegger/nvim-dap",
-    ft = { "swift", "objc", "objcpp" },
+    ft = { "swift", "objc", "objcpp", "python" },
     dependencies = {
       "wojciech-kulik/xcodebuild.nvim",
       { "rcarriga/nvim-dap-ui", dependencies = "nvim-neotest/nvim-nio" }, -- the panels

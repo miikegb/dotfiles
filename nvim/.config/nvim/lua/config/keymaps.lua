@@ -78,3 +78,9 @@ map("n", "<F5>", function() require("dap").continue() end, { desc = "Debug: Cont
 map("n", "<F10>", function() require("dap").step_over() end, { desc = "Debug: Step Over" })
 map("n", "<F11>", function() require("dap").step_into() end, { desc = "Debug: Step Into" })
 map("n", "<F12>", function() require("dap").step_out() end, { desc = "Debug: Step Out" })
+
+-- Run current Python file in a terminal split (uses env chosen via :VenvSelect)
+map("n", "<leader>r", function()
+  vim.cmd.write()
+  Snacks.terminal("python " .. vim.fn.shellescape(vim.fn.expand("%:p")), { interactive = false })
+end, { desc = "Run Python file" })
